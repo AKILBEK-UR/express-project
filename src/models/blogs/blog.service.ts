@@ -1,3 +1,4 @@
+import { ILike, Like } from 'typeorm';
 import { AppDataSource } from '../../data-source';
 import { Blog } from '../../entities/blog';
 import { User } from '../../entities/user';
@@ -17,16 +18,27 @@ export class BlogService {
             title: newBlog.title,
             content: newBlog.content,
             author,
+            tags:newBlog.tags
         });
 
         return this.blogRepository.save(blog);
     }
 
     // Get all blogs with pagination
-    async getAllBlogs(pagination: BlogGetAllDto) {
+    async getAllBlogs(pagination: BlogGetAllDto, searchQuery?:string) {
         const { page, limit } = pagination;
+
+        const param = searchQuery
+        ? [
+            {title: ILike(`%${searchQuery}%`)},
+            {content: Like(`%${searchQuery}%`)},
+            {tags: Like(`%${searchQuery}%`)}
+        ]:[];
+
+
         const [posts, total] = await this.blogRepository.findAndCount({
             relations: ['author', 'comment'], // Load the author relation
+            where: param, 
             take: limit,
             skip: (page - 1) * limit,
         });

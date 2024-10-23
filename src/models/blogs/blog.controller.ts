@@ -29,10 +29,13 @@ blogRouter.post(
 
 // Get All Blogs with Pagination
 blogRouter.get("/",authMiddleware,roleMiddleware(['admin']), async (req: Request, res: Response) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, search } = req.query;
 
     try {
-        const posts = await blogService.getAllBlogs({ page: +page, limit: +limit });
+        const posts = await blogService.getAllBlogs(
+            { page: +page, limit: +limit },
+            search ? String(search) : undefined
+        );
         res.status(200).json(posts);
     } catch (error: any) {
         res.status(500).json({ message: error.message || "Error in getting posts!" });

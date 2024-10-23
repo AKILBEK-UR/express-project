@@ -12,6 +12,9 @@ export class Blog {
   @Column()
   content!: string;
 
+  @Column("simple-array",{nullable:true})
+  tags!:string[]
+
   @ManyToOne(() => User, (user) => user.blogs, { onDelete: 'CASCADE' })
   author!: User;
 
