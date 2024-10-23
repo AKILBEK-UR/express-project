@@ -3,8 +3,8 @@ import { BlogService } from "./blog.service";
 import { blogCreateDtoSchema } from "./dto/blog-create.dto";
 import { blogUpdateDtoSchema } from "./dto/blog-update.dto";
 import { validateReqBody } from "../../shared/request-body.validator";
-import authMiddleware from "../../middleware/authMiddleware";
-
+import authMiddleware from "../../middleware/auth.middleware";
+import { roleMiddleware } from "../../middleware/role.middleware";
 export const blogRouter = Router();
 const blogService = new BlogService();
 
@@ -12,6 +12,7 @@ const blogService = new BlogService();
 blogRouter.post(
     "/",
     authMiddleware,
+    roleMiddleware(['user']),
     validateReqBody(blogCreateDtoSchema),
     async (req: Request, res: Response) => {
         const { title, content } = req.body;
@@ -27,7 +28,7 @@ blogRouter.post(
 );
 
 // Get All Blogs with Pagination
-blogRouter.get("/", async (req: Request, res: Response) => {
+blogRouter.get("/",authMiddleware,roleMiddleware(['admin']), async (req: Request, res: Response) => {
     const { page = 1, limit = 10 } = req.query;
 
     try {
@@ -39,17 +40,13 @@ blogRouter.get("/", async (req: Request, res: Response) => {
 });
 
 // Update Blog Post
-blogRouter.put(
-    "/:id",
-    authMiddleware,
-    validateReqBody(blogUpdateDtoSchema),
-    async (req: Request, res: Response) => {
+blogRouter.put("/:id",authMiddleware,roleMiddleware(['admin', 'user']),validateReqBody(blogUpdateDtoSchema),async (req: Request, res: Response) => {
         const blogId = req.params.id;
         const { title, content } = req.body;
         const userId = req.user!.id;
-
+        const userRole = req.user!.role;
         try {
-            const updatedBlog = await blogService.updateBlog(blogId, { title, content }, userId);
+            const updatedBlog = await blogService.updateBlog(blogId, { title, content }, userId, userRole);
             res.status(200).json(updatedBlog);
         } catch (error: any) {
             res.status(500).json({ message: error.message || "Error in updating post!" });
@@ -58,15 +55,12 @@ blogRouter.put(
 );
 
 // Delete Blog Post
-blogRouter.delete(
-    "/:id",
-    authMiddleware,
-    async (req: Request, res: Response) => {
+blogRouter.delete("/:id",authMiddleware,roleMiddleware(['admin', 'user']),async (req: Request, res: Response) => {
         const blogId = req.params.id;
         const userId = req.user!.id;
-
+        const userRole = req.user!.role; 
         try {
-            await blogService.deleteBlog(blogId, userId);
+            await blogService.deleteBlog(blogId, userId, userRole);
             res.status(204).send();
         } catch (error: any) {
             res.status(500).json({ message: error.message || "Error in deleting post!" });

@@ -1,6 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from './user';
-
+import { Comment } from './comment';
 @Entity()
 export class Blog {
   @PrimaryGeneratedColumn('uuid')
@@ -14,4 +14,7 @@ export class Blog {
 
   @ManyToOne(() => User, (user) => user.blogs, { onDelete: 'CASCADE' })
   author!: User;
+
+  @OneToMany(() => Comment, (comment) => comment.blog)
+    comment!: Comment[]
 }

@@ -1,6 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Blog } from './blog';
+import { Comment } from './comment';
 import bcrypt from "bcrypt"
+
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn("uuid")
@@ -15,12 +18,19 @@ export class User {
   @Column()
     password!: string;
 
+  @Column({
+    type: 'enum',
+    enum: ['admin', 'user'],
+    default: 'user',
+  })
+  role!: 'admin' | 'user';
+
   @OneToMany(() => Blog, (blog) => blog.author)
     blogs!: Blog[];
 
-  @Column({ default: 'user' })
-    role!: string;
-  
+  @OneToMany(()=> Comment, (comment)=> comment.user)
+    comment!: Comment[]
+
   async hashPassword(password: string):Promise<string> {
     const saltRounds = 10; 
     return bcrypt.hash(password, saltRounds);

@@ -13,7 +13,7 @@ export const userSignUpDtoSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" })
-    .max(100, { message: "Max length is 100" }), 
+    .max(100, { message: "Max length is 100" }),
 });
 
 export type UserSignUpDto = z.infer<
