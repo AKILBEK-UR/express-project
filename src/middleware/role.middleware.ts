@@ -1,11 +1,10 @@
-// import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
-// export const checkRole = (role: string) => {
-//   return (req: Request, res: Response, next: NextFunction) => {
-//     const user = req.user;
-//     if (!user || user.role !== role) {
-//       return res.status(403).json({ message: "Access denied." });
-//     }
-//     next();
-//   };
-// };
+export const roleMiddleware = (allowedRoles: string[]) => {
+    return (req: Request, res: Response, next: NextFunction): void => {
+        const userRole = req.user?.role;
+        if (!allowedRoles.includes(userRole)) throw new Error('Access denied');
+
+        next();
+    };
+};

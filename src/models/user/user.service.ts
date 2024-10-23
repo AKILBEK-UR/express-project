@@ -8,12 +8,12 @@ export class UserService {
 
     async signup(newUser: UserSignUpDto):Promise<User>{
         const user = new User();
-
+        if(!newUser) throw new Error("lll")
         const hashedPassword = await user.hashPassword(newUser.password)
         user.username = newUser.username
         user.email = newUser.email
         user.password = hashedPassword
-        
+
         return await this.userRepository.save(user); 
     }
 
@@ -34,5 +34,26 @@ export class UserService {
 
     async getAllUsers(): Promise<User[]> {
         return await this.userRepository.find();
+    }
+
+    async promoteUser(userId: string): Promise<User> {
+        const user = await this.userRepository.findOneBy({ id: userId });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        user.role = 'admin';
+        return await this.userRepository.save(user);
+    }
+
+    async demoteUser(userId: string): Promise<User> {
+        const user = await this.userRepository.findOneBy({ id: userId });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        user.role = 'user';
+        return await this.userRepository.save(user);
+    }
+    async deleteUser(userId: string): Promise<void> {
+        await this.userRepository.delete(userId);
     }
 }

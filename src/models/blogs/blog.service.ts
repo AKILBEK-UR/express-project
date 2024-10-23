@@ -16,7 +16,7 @@ export class BlogService {
         const blog = this.blogRepository.create({
             title: newBlog.title,
             content: newBlog.content,
-            author,  // The User entity as a relation
+            author,
         });
 
         return this.blogRepository.save(blog);
@@ -26,7 +26,7 @@ export class BlogService {
     async getAllBlogs(pagination: BlogGetAllDto) {
         const { page, limit } = pagination;
         const [posts, total] = await this.blogRepository.findAndCount({
-            relations: ['author'], // Load the author relation
+            relations: ['author', 'comment'], // Load the author relation
             take: limit,
             skip: (page - 1) * limit,
         });
@@ -34,7 +34,7 @@ export class BlogService {
     }
 
     // Update a blog if the user is the author
-    async updateBlog(blogId: string, newBlog: BlogUpdateDto, userId: string): Promise<Blog | null> {
+    async updateBlog(blogId: string, newBlog: BlogUpdateDto, userId: string, userRole: string): Promise<Blog | null> {
         const blog = await this.blogRepository.findOne({
             where: { id: blogId },
             relations: ['author'],
@@ -43,13 +43,11 @@ export class BlogService {
         if (!blog) {
             throw new Error("Blog not found");
         }
-        console.log("Blog Author ID:", blog.author.id);
-        console.log("User ID:", userId);
 
-        if (blog.author.id !== userId) {
-            console.error(`Unauthorized access. User ID: ${userId}, Blog Author ID: ${blog.author.id}`);
-            throw new Error("Unauthorized");
+        if (blog.author.id !== userId && userRole !== 'admin') {
+            throw new Error('Unauthorized');
         }
+        
 
         blog.title = newBlog.title;
         blog.content = newBlog.content;
@@ -58,17 +56,17 @@ export class BlogService {
     }
 
     // Delete a blog if the user is the author
-    async deleteBlog(blogId: string, userId: string): Promise<void> {
+    async deleteBlog(blogId: string, userId: string, userRole: string): Promise<void> {
         const blog = await this.blogRepository.findOne({
             where: { id: blogId },
-            relations: ['author'], // Load the author relation
+            relations: ['author'], 
         });
         
         if (!blog) {
             throw new Error("Blog not found!");
         }
 
-        if (blog.author.id !== userId) {
+        if (blog.author.id !== userId && userRole !== 'admin') {
             throw new Error('Unauthorized');
         }
 
