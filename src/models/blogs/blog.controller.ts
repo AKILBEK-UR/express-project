@@ -70,3 +70,27 @@ blogRouter.delete("/:id",authMiddleware,roleMiddleware(['admin', 'user']),async 
         }
     }
 );
+
+
+//Like the blog
+blogRouter.post("/:id/like", async (req:Request, res:Response) =>{
+    const blogId = req.params.id;
+    try{
+        const blog = await blogService.likeBlog(blogId);
+        res.status(200).json(blog)
+    }catch(error:any){
+        res.status(500).json({ message: error.message || "Error in liking the blog post!" });
+    }
+})
+
+//Unlike the blog
+blogRouter.post("/:id/unlike", async (req:Request, res:Response) => {
+    const blogId = req.params.id;
+
+    try{
+        const blog = await blogService.unlikeBlog(blogId);
+        res.status(200).json(blog);
+    }catch(error:any){
+        res.status(500).json({ message: error.message || "Error in liking the blog post!" });
+    }
+})

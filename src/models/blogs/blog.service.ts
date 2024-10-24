@@ -84,4 +84,24 @@ export class BlogService {
 
         await this.blogRepository.remove(blog);
     }
+
+    //Like the post
+    async likeBlog(blogId: string) {
+        const blog = await this.blogRepository.findOneBy({id:blogId})
+
+        if (!blog) throw new Error("Blog not found");
+
+        blog.likes = (blog.likes || 0) + 1;
+        return this.blogRepository.save(blog);
+    }
+
+    //Unlike the blog
+    async unlikeBlog(blogId:string) {
+        const blog = await this.blogRepository.findOneBy({id:blogId})
+
+        if(!blog) throw new Error("Blog not found");
+
+        blog.likes = Math.max((blog.likes || 1) - 1, 0);
+        return this.blogRepository.save(blog);
+    }
 }
