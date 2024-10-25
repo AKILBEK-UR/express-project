@@ -32,7 +32,7 @@ userRouter.post('/login',validateReqBody(userLoginDtoSchema), async (req: Reques
       if (user) {
         const token = generateToken(user.id);
         res.status(200).json({
-          message: `User is logged in as ${user.email}`,
+          message: `User is logged in by ${user.email}`,
           token: token,
         });
       } else {
@@ -45,3 +45,16 @@ userRouter.post('/login',validateReqBody(userLoginDtoSchema), async (req: Reques
       });
     }
   });
+
+  userRouter.get("/users", async (req: Request, res: Response) => {
+    try {
+        const users = await userService.getAllUsers();
+        res.status(200).json(users);
+    } catch (error: any) {
+        console.error(error);
+        res.status(500).json({
+            message: "An error occurred while fetching users.",
+            error: error.message,
+        });
+    }
+});
