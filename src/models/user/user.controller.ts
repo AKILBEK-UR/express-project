@@ -9,12 +9,7 @@ import authMiddleware from "../../middleware/auth.middleware";
 export const userRouter = Router();
 const userService = new UserService();
 
-userRouter.post(
-    "/signup",
-    authMiddleware,
-    roleMiddleware(['admin']),
-    validateReqBody(userSignUpDtoSchema),
-    async (req, res) => {
+userRouter.post("/signup",authMiddleware,validateReqBody(userSignUpDtoSchema),async (req: Request, res: Response) => {
         const { username, email, password } = req.body;
         try {
             const user = await userService.signup({ username, email, password });
@@ -29,8 +24,6 @@ userRouter.post(
         }
     }
 );
-
-
 
 userRouter.post('/login',validateReqBody(userLoginDtoSchema), async (req: Request, res: Response) => {
 
@@ -55,7 +48,7 @@ userRouter.post('/login',validateReqBody(userLoginDtoSchema), async (req: Reques
     }
   });
 
-  userRouter.get("/users",authMiddleware,roleMiddleware(['admin']), async (req: Request, res: Response) => {
+userRouter.get("/users",authMiddleware,roleMiddleware(['admin']), async (req: Request, res: Response) => {
     try {
         const users = await userService.getAllUsers();
         res.status(200).json(users);
@@ -112,3 +105,31 @@ userRouter.delete("/:id", authMiddleware, roleMiddleware(['admin']), async (req:
       });
   }
 });
+
+userRouter.get("/profile/view",authMiddleware, async (req: Request, res: Response) => {
+    try{
+        const userId = req.user!.id
+        const user = await userService.viewProfile(userId)
+        res.status(200).json(user)
+    }catch(error:any){
+        res.status(500).json({
+            message: "Error in fetching user Profile",
+            error: error.message,
+        }) 
+    }
+})
+
+
+userRouter.post("/profile/update",authMiddleware,async (req: Request, res: Response) =>{
+    try{
+        const userId = req.user!.id
+        const updateData = req.body
+        const user = await userService.updateUser(userId,updateData)
+        res.status(200).json(user)
+    }catch(error:any){
+        res.status(500).json({
+            message: "Error in updating profile.",
+            error: error.message,
+        })
+    }
+})

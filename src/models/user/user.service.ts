@@ -53,7 +53,25 @@ export class UserService {
         user.role = 'user';
         return await this.userRepository.save(user);
     }
+
     async deleteUser(userId: string): Promise<void> {
         await this.userRepository.delete(userId);
+    }
+
+    async viewProfile(userId:string): Promise<User| null> {
+        const user =  this.userRepository.findOne({where: {id: userId}})
+        if(!user) throw new Error("User not found.")
+        return user;
+    }
+
+    async updateUser(userId: string, updateData:Partial<User>): Promise<User> {
+        const user = await this.userRepository.findOneBy({ id: userId });
+
+        if(!user) throw new Error("User not found.");
+
+        if(updateData.username) user.username = updateData.username;
+        if(updateData.email) user.email = updateData.email
+
+        return await this.userRepository.save(user);
     }
 }
