@@ -1,6 +1,6 @@
 import { Blog } from "./blog";
 import { User } from "./user";
-import { ManyToOne, Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { ManyToOne, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity()

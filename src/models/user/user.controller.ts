@@ -9,12 +9,16 @@ import authMiddleware from "../../middleware/auth.middleware";
 export const userRouter = Router();
 const userService = new UserService();
 
+<<<<<<< Updated upstream
 userRouter.post(
     "/signup",
     authMiddleware,
     roleMiddleware(['admin']),
     validateReqBody(userSignUpDtoSchema),
     async (req, res) => {
+=======
+userRouter.post("/signup",validateReqBody(userSignUpDtoSchema),async (req: Request, res: Response) => {
+>>>>>>> Stashed changes
         const { username, email, password } = req.body;
         try {
             const user = await userService.signup({ username, email, password });
@@ -111,4 +115,35 @@ userRouter.delete("/:id", authMiddleware, roleMiddleware(['admin']), async (req:
           error: error.message,
       });
   }
+<<<<<<< Updated upstream
 });
+=======
+});
+
+userRouter.get("/profile/view",authMiddleware, async (req: Request, res: Response) => {
+    try{
+        const userId = req.user!.id
+        const user = await userService.viewProfile(userId)
+        res.status(200).json(user)
+    }catch(error:any){
+        res.status(500).json({
+            message: "Error in fetching user Profile",
+            error: error.message,
+        }) 
+    }
+})
+
+userRouter.post("/profile/update",authMiddleware,async (req: Request, res: Response) =>{
+    try{
+        const userId = req.user!.id
+        const updateData = req.body
+        const user = await userService.updateUser(userId,updateData)
+        res.status(200).json(user)
+    }catch(error:any){
+        res.status(500).json({
+            message: "Error in updating profile.",
+            error: error.message,
+        })
+    }
+})
+>>>>>>> Stashed changes

@@ -1,13 +1,15 @@
-import { ILike, Like } from 'typeorm';
+import { ILike } from 'typeorm';
 import { AppDataSource } from '../../data-source';
 import { Blog } from '../../entities/blog';
 import { User } from '../../entities/user';
 import { BlogCreateDto } from './dto/blog-create.dto';
 import { BlogGetAllDto } from './dto/blog-getAll.dto';
 import { BlogUpdateDto } from './dto/blog-update.dto';
-
+import { Like } from '../../entities/like';
 export class BlogService {
     private blogRepository = AppDataSource.getRepository(Blog);
+    private likeRepository = AppDataSource.getRepository(Like)
+    private userRepository = AppDataSource.getRepository(User)
 
     // Create a new blog post
     async createBlog(newBlog: BlogCreateDto & {authorId:string}): Promise<Blog> {
@@ -31,18 +33,18 @@ export class BlogService {
         const param = searchQuery
         ? [
             {title: ILike(`%${searchQuery}%`)},
-            {content: Like(`%${searchQuery}%`)},
-            {tags: Like(`%${searchQuery}%`)}
+            {content: ILike(`%${searchQuery}%`)},
+            {tags: ILike(`%${searchQuery}%`)}
         ]:[];
 
 
-        const [posts, total] = await this.blogRepository.findAndCount({
-            relations: ['author', 'comment'], // Load the author relation
+        const [blogs, total] = await this.blogRepository.findAndCount({
+            relations: ['author', 'comment',"likes"], // Load the author relation
             where: param, 
             take: limit,
             skip: (page - 1) * limit,
         });
-        return { posts, total, page, limit };
+        return { blogs, total, page, limit };
     }
 
     // Update a blog if the user is the author
@@ -86,22 +88,31 @@ export class BlogService {
     }
 
     //Like the post
-    async likeBlog(blogId: string) {
+    async likeBlog(blogId: string, userId:string) {
         const blog = await this.blogRepository.findOneBy({id:blogId})
+        const user = await this.userRepository.findOneBy({id:userId})
 
         if (!blog) throw new Error("Blog not found");
+        if (!user) throw new Error("User not found");
 
-        blog.likes = (blog.likes || 0) + 1;
-        return this.blogRepository.save(blog);
+        const alreadyLiked = await this.likeRepository.findOne({where: {blog,user}})
+        if(alreadyLiked) throw new Error("Already liked blog")
+
+        const like = this.likeRepository.create({blog,user})
+        return this.likeRepository.save(like)
     }
 
     //Unlike the blog
-    async unlikeBlog(blogId:string) {
+    async unlikeBlog(blogId:string, userId:string) {
         const blog = await this.blogRepository.findOneBy({id:blogId})
+        const user = await this.userRepository.findOneBy({id:userId})
 
         if(!blog) throw new Error("Blog not found");
+        if (!user) throw new Error("User not found");
+        
+        const like = await this.likeRepository.findOne({where:{blog,user}})
+        if(!like) throw new Error("Not liked before")
 
-        blog.likes = Math.max((blog.likes || 1) - 1, 0);
-        return this.blogRepository.save(blog);
+        return this.likeRepository.remove(like)
     }
 }

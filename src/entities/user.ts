@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Blog } from './blog';
 import { Comment } from './comment';
 import bcrypt from "bcrypt"
-
+import { Like } from './like';
 
 @Entity()
 export class User {
@@ -31,6 +31,9 @@ export class User {
   @OneToMany(()=> Comment, (comment)=> comment.user)
     comment!: Comment[]
 
+  @OneToMany(() => Like, (like) => like.user)
+    like!: Like[];
+  
   async hashPassword(password: string):Promise<string> {
     const saltRounds = 10; 
     return bcrypt.hash(password, saltRounds);
