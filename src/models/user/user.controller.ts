@@ -9,6 +9,7 @@ import authMiddleware from "../../middleware/auth.middleware";
 export const userRouter = Router();
 const userService = new UserService();
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 userRouter.post(
     "/signup",
@@ -19,6 +20,9 @@ userRouter.post(
 =======
 userRouter.post("/signup",validateReqBody(userSignUpDtoSchema),async (req: Request, res: Response) => {
 >>>>>>> Stashed changes
+=======
+userRouter.post("/signup",authMiddleware,validateReqBody(userSignUpDtoSchema),async (req: Request, res: Response) => {
+>>>>>>> User-Profile
         const { username, email, password } = req.body;
         try {
             const user = await userService.signup({ username, email, password });
@@ -33,8 +37,6 @@ userRouter.post("/signup",validateReqBody(userSignUpDtoSchema),async (req: Reque
         }
     }
 );
-
-
 
 userRouter.post('/login',validateReqBody(userLoginDtoSchema), async (req: Request, res: Response) => {
 
@@ -59,7 +61,7 @@ userRouter.post('/login',validateReqBody(userLoginDtoSchema), async (req: Reques
     }
   });
 
-  userRouter.get("/users",authMiddleware,roleMiddleware(['admin']), async (req: Request, res: Response) => {
+userRouter.get("/users",authMiddleware,roleMiddleware(['admin']), async (req: Request, res: Response) => {
     try {
         const users = await userService.getAllUsers();
         res.status(200).json(users);
@@ -115,9 +117,12 @@ userRouter.delete("/:id", authMiddleware, roleMiddleware(['admin']), async (req:
           error: error.message,
       });
   }
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 });
 =======
+=======
+>>>>>>> User-Profile
 });
 
 userRouter.get("/profile/view",authMiddleware, async (req: Request, res: Response) => {
@@ -133,6 +138,10 @@ userRouter.get("/profile/view",authMiddleware, async (req: Request, res: Respons
     }
 })
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> User-Profile
 userRouter.post("/profile/update",authMiddleware,async (req: Request, res: Response) =>{
     try{
         const userId = req.user!.id
@@ -145,5 +154,9 @@ userRouter.post("/profile/update",authMiddleware,async (req: Request, res: Respo
             error: error.message,
         })
     }
+<<<<<<< HEAD
 })
 >>>>>>> Stashed changes
+=======
+})
+>>>>>>> User-Profile
