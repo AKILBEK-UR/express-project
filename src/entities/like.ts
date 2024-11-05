@@ -11,6 +11,6 @@ export class Like {
     @ManyToOne(()=>User, (user) => user.like, { onDelete: 'CASCADE' })
     user!: User
 
-    @ManyToOne(()=>Blog, (blog)=> blog.like, {onDelete: 'CASCADE'})
+    @ManyToOne(()=>Blog, (blog)=> blog.likes, {onDelete: 'CASCADE'})
     blog!: Blog
 }

@@ -28,7 +28,7 @@ export class User {
   @OneToMany(() => Blog, (blog) => blog.author)
     blogs!: Blog[];
 
-  @OneToMany(()=> Comment, (comment)=> comment.user)
+  @OneToMany(()=> Comment, (comment)=> comment.user, { onDelete: 'CASCADE' })
     comment!: Comment[]
 
   @OneToMany(() => Like, (like) => like.user)

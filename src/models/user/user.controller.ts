@@ -9,27 +9,19 @@ import authMiddleware from "../../middleware/auth.middleware";
 export const userRouter = Router();
 const userService = new UserService();
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-userRouter.post(
-    "/signup",
-    authMiddleware,
-    roleMiddleware(['admin']),
-    validateReqBody(userSignUpDtoSchema),
-    async (req, res) => {
-=======
+
 userRouter.post("/signup",validateReqBody(userSignUpDtoSchema),async (req: Request, res: Response) => {
->>>>>>> Stashed changes
-=======
-userRouter.post("/signup",authMiddleware,validateReqBody(userSignUpDtoSchema),async (req: Request, res: Response) => {
->>>>>>> User-Profile
         const { username, email, password } = req.body;
+        if (!username || !email || !password) {
+            throw new Error("All fields are required")
+        }
         try {
             const user = await userService.signup({ username, email, password });
             res.status(201).json({
                 message: `New account is created as ${user.username}`,
             });
         } catch (error: any) {
+            console.log(error)
             res.status(500).json({
                 message: "An error occurred while creating the account.",
                 error: error.message,
@@ -61,7 +53,7 @@ userRouter.post('/login',validateReqBody(userLoginDtoSchema), async (req: Reques
     }
   });
 
-userRouter.get("/users",authMiddleware,roleMiddleware(['admin']), async (req: Request, res: Response) => {
+userRouter.get("/users",roleMiddleware(['admin']), async (req: Request, res: Response) => {
     try {
         const users = await userService.getAllUsers();
         res.status(200).json(users);
@@ -74,7 +66,7 @@ userRouter.get("/users",authMiddleware,roleMiddleware(['admin']), async (req: Re
     }
 });
 
-userRouter.post("/users/:id/promote", authMiddleware, roleMiddleware(['admin']), async (req: Request, res: Response) => {
+userRouter.post("/users/:id/promote", roleMiddleware(['admin']), async (req: Request, res: Response) => {
   try {
       const userId = req.params.id;
       const user = await userService.promoteUser(userId);
@@ -117,12 +109,6 @@ userRouter.delete("/:id", authMiddleware, roleMiddleware(['admin']), async (req:
           error: error.message,
       });
   }
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-});
-=======
-=======
->>>>>>> User-Profile
 });
 
 userRouter.get("/profile/view",authMiddleware, async (req: Request, res: Response) => {
@@ -138,10 +124,6 @@ userRouter.get("/profile/view",authMiddleware, async (req: Request, res: Respons
     }
 })
 
-<<<<<<< HEAD
-=======
-
->>>>>>> User-Profile
 userRouter.post("/profile/update",authMiddleware,async (req: Request, res: Response) =>{
     try{
         const userId = req.user!.id
@@ -154,9 +136,4 @@ userRouter.post("/profile/update",authMiddleware,async (req: Request, res: Respo
             error: error.message,
         })
     }
-<<<<<<< HEAD
 })
->>>>>>> Stashed changes
-=======
-})
->>>>>>> User-Profile
