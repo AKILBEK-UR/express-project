@@ -109,10 +109,16 @@ export class BlogService {
 
         if(!blog) throw new Error("Blog not found");
         if (!user) throw new Error("User not found");
-        
-        const like = await this.likeRepository.findOne({where:{blog,user}})
-        if(!like) throw new Error("Not liked before")
 
-        return this.likeRepository.remove(like)
+        const like = await this.likeRepository.findOne({
+            where: {
+                blog: { id: blogId },
+                user: { id: userId },
+            },
+        });
+
+        if (!like) throw new Error("Not liked before");
+        
+        return await this.likeRepository.remove(like)
     }
 }

@@ -25,7 +25,8 @@ export class CommentService {
     async getAllComments(blogId: string): Promise<Comment[]> {
         return this.commentRepository.find({
             where: { blog: { id: blogId } },
-            relations: ['user']
+            relations: ['user'],
+            order: { id: 'DESC' }
         });
     }
 

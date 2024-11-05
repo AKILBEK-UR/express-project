@@ -8,7 +8,6 @@ export class UserService {
 
     async signup(newUser: UserSignUpDto):Promise<User>{
         const user = new User();
-        if(!newUser) throw new Error("lll")
         const hashedPassword = await user.hashPassword(newUser.password)
         user.username = newUser.username
         user.email = newUser.email
@@ -55,12 +54,16 @@ export class UserService {
     }
 
     async deleteUser(userId: string): Promise<void> {
+        
         await this.userRepository.delete(userId);
+        
     }
 
-    async viewProfile(userId:string): Promise<User| null> {
-        const user =  this.userRepository.findOne({where: {id: userId}})
-        if(!user) throw new Error("User not found.")
+    async viewProfile(userId:string):Promise<User> {
+        const user =  await this.userRepository.findOne({where: {id: userId}});
+        if(!user) {
+            throw new Error("User not found.");
+        }
         return user;
     }
 
